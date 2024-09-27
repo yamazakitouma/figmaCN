@@ -2643,6 +2643,7 @@ const allData = [
   [`Suffix: `, `后缀：`],
   [`Suffix`, `后缀`],
   [`Suggest auto layout`, `建议自动布局`],
+  [`Suggestions`, `建议`],
   [`Summarize`, `总结`],
   [`Superscript`, `上标`],
   [`Support contact`, `支持联系方式`],
