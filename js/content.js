@@ -2021,6 +2021,7 @@ const allData = [
   [`Plugins unavailable.`, `插件不可用`],
   [`Plugins unavailable`, `插件不可用`],
   [`Plugins`, `插件`],
+  [`Plugins & widgets`, `插件 & 小部件`],
   [`Plus darker`, `加暗`],
   [`Plus lighter`, `提亮`],
   [`Polls, games, charts, and more`, `投票、游戏、图表等`],
