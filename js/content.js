@@ -30,6 +30,7 @@ function initializeTranslation(allData) {
 
   // 初始化时转换一次翻译数组格式，避免 MutationObserver 触发时重复转换
   const dataMap = new Map();
+  const reverseDataMap = new Map();
   const patternEntries = []; // {@} 通配符模式匹配
   allData.forEach(([key, val]) => {
     if (key && !dataMap.has(key)) {
@@ -43,6 +44,9 @@ function initializeTranslation(allData) {
         patternEntries.push({ regex: new RegExp('^' + escaped + '$'), template: val });
       } else {
         dataMap.set(key, val);
+        if (!reverseDataMap.has(val)) {
+          reverseDataMap.set(val, key);
+        }
       }
     }
   });
@@ -177,11 +181,78 @@ function initializeTranslation(allData) {
     if (shouldSkipTranslation(el)) return;
     if (el.hasAttribute && el.hasAttribute(DONE_FLAG)) return;
     const original = el.textContent;
+    if (el.childElementCount > 0) {
+      const childElements = Array.from(el.children);
+
+      // 先翻译直系子元素，确保子树自己也会被处理。
+      for (const child of childElements) {
+        if (child.tagName === 'I18N-TEXT') {
+          translateI18nText(child);
+        } else {
+          translateSubtree(child);
+        }
+      }
+
+      // 如果子元素已被翻译，先把它们的译文反向还原为英文 key，
+      // 让外层整句仍能命中完整词条。
+      let normalizedOriginal = original;
+      const childPairs = childElements
+        .map((child) => {
+          const childText = child.textContent;
+          return {
+            translatedText: childText,
+            sourceText: childText ? reverseDataMap.get(childText) : null
+          };
+        })
+        .filter((item) => item.translatedText && item.sourceText)
+        .sort((a, b) => b.translatedText.length - a.translatedText.length);
+
+      for (const { translatedText, sourceText } of childPairs) {
+        normalizedOriginal = normalizedOriginal.split(translatedText).join(sourceText);
+      }
+
+      const translated = translateText(normalizedOriginal);
+      if (translated != null && translated !== original) {
+        const fragment = document.createDocumentFragment();
+        let cursor = 0;
+        let canRebuild = true;
+
+        for (const child of childElements) {
+          const childText = child.textContent;
+          if (!childText) continue;
+
+          const index = translated.indexOf(childText, cursor);
+          if (index === -1) {
+            canRebuild = false;
+            break;
+          }
+
+          if (index > cursor) {
+            fragment.appendChild(document.createTextNode(translated.slice(cursor, index)));
+          }
+
+          fragment.appendChild(child);
+          cursor = index + childText.length;
+        }
+
+        if (canRebuild) {
+          if (cursor < translated.length) {
+            fragment.appendChild(document.createTextNode(translated.slice(cursor)));
+          }
+          el.replaceChildren(fragment);
+          if (el.setAttribute) el.setAttribute(DONE_FLAG, '');
+          return;
+        }
+      }
+
+      return;
+    }
+
     const translated = translateText(original);
     if (translated != null && translated !== original) {
       el.textContent = translated;
+      if (el.setAttribute) el.setAttribute(DONE_FLAG, '');
     }
-    if (el.setAttribute) el.setAttribute(DONE_FLAG, '');
   }
 
   // 对单个节点及其子树做局部 TreeWalker 翻译
