@@ -4,7 +4,7 @@
 // @match        *://*.figma.com/*
 // @icon         https://cdn.jim-nielsen.com/macos/1024/figma-2021-05-05.png
 // @license      GPL-3.0 license
-// @version      1.7.0
+// @version      1.8.0
 // @description  中文 Figma 插件，设计师人工翻译校验。远程加载仓库最新代码，跟随 master 分支自动更新。
 // @author       Figma-Cool
 // @homepageURL  https://figma.cool
