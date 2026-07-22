@@ -4156,6 +4156,7 @@
   ["Select up to 5 tags to help people discover your resource", "最多选择 5 个标签，帮助大家发现您的资源"],
   ["Add custom tags", "添加自定义标签"],
   ["Add up to 5 more tags, separated by commas or tabs", "最多再添加 5 个标签，使用逗号或制表符分隔"],
+  ["Add up to 5 tags, separated by commas or tabs", "最多添加 5 个标签，使用逗号或制表符分隔"],
   ["Social studies", "社会研究"],
   ["Calendar", "日历"],
   ["Reading", "阅读"],

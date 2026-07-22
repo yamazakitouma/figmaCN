@@ -24,7 +24,7 @@ function initializeTranslation(allData) {
   const MutationObserverConfig = {
     childList: true,
     subtree: true,
-    attributeFilter: ['data-label', 'aria-label', 'data-tooltip'],
+    attributeFilter: ['data-label', 'placeholder', 'data-placeholder', 'aria-label', 'data-tooltip'],
     characterData: true
   };
 
@@ -56,7 +56,7 @@ function initializeTranslation(allData) {
   };
 
   const DONE_FLAG = 'data-figmacn-done';
-  const TEXT_ATTRIBUTES = ['data-label', 'placeholder', 'aria-label', 'data-tooltip'];
+  const TEXT_ATTRIBUTES = ['data-label', 'placeholder', 'data-placeholder', 'aria-label', 'data-tooltip'];
 
   // 跳过区域根节点缓存：记录最近一次判定为"跳过区域"的根节点，避免对其子树反复向上遍历
   let skipRootCache = null;
