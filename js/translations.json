@@ -4211,5 +4211,6 @@
   ["Share this prototype", "分享此原型"],
   ["Editors from the main file can also access.", "主文件中的编辑者也可以访问。"],
   ["Any changes you make will only update access to the prototype. People in the main file or directly invited to the prototype won't be impacted.", "您所做的任何更改只会更新原型的访问权限。主文件中的人员或直接受邀访问原型的人员不会受到影响。"],
-  ["Only people you've directly invited can access this prototype.", "只有您直接邀请的人才能访问此原型。"]
+  ["Only people you've directly invited can access this prototype.", "只有您直接邀请的人才能访问此原型。"],
+  ["Link copied!", "链接已复制！"]
 ]
