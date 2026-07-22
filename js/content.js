@@ -24,12 +24,13 @@ function initializeTranslation(allData) {
   const MutationObserverConfig = {
     childList: true,
     subtree: true,
-    attributeFilter: ['data-label'],
+    attributeFilter: ['data-label', 'placeholder', 'data-placeholder', 'aria-label', 'data-tooltip'],
     characterData: true
   };
 
   // 初始化时转换一次翻译数组格式，避免 MutationObserver 触发时重复转换
   const dataMap = new Map();
+  const reverseDataMap = new Map();
   const patternEntries = []; // {@} 通配符模式匹配
   allData.forEach(([key, val]) => {
     if (key && !dataMap.has(key)) {
@@ -43,6 +44,9 @@ function initializeTranslation(allData) {
         patternEntries.push({ regex: new RegExp('^' + escaped + '$'), template: val });
       } else {
         dataMap.set(key, val);
+        if (!reverseDataMap.has(val)) {
+          reverseDataMap.set(val, key);
+        }
       }
     }
   });
@@ -52,6 +56,7 @@ function initializeTranslation(allData) {
   };
 
   const DONE_FLAG = 'data-figmacn-done';
+  const TEXT_ATTRIBUTES = ['data-label', 'placeholder', 'data-placeholder', 'aria-label', 'data-tooltip'];
 
   // 跳过区域根节点缓存：记录最近一次判定为"跳过区域"的根节点，避免对其子树反复向上遍历
   let skipRootCache = null;
@@ -177,11 +182,78 @@ function initializeTranslation(allData) {
     if (shouldSkipTranslation(el)) return;
     if (el.hasAttribute && el.hasAttribute(DONE_FLAG)) return;
     const original = el.textContent;
+    if (el.childElementCount > 0) {
+      const childElements = Array.from(el.children);
+
+      // 先翻译直系子元素，确保子树自己也会被处理。
+      for (const child of childElements) {
+        if (child.tagName === 'I18N-TEXT') {
+          translateI18nText(child);
+        } else {
+          translateSubtree(child);
+        }
+      }
+
+      // 如果子元素已被翻译，先把它们的译文反向还原为英文 key，
+      // 让外层整句仍能命中完整词条。
+      let normalizedOriginal = original;
+      const childPairs = childElements
+        .map((child) => {
+          const childText = child.textContent;
+          return {
+            translatedText: childText,
+            sourceText: childText ? reverseDataMap.get(childText) : null
+          };
+        })
+        .filter((item) => item.translatedText && item.sourceText)
+        .sort((a, b) => b.translatedText.length - a.translatedText.length);
+
+      for (const { translatedText, sourceText } of childPairs) {
+        normalizedOriginal = normalizedOriginal.split(translatedText).join(sourceText);
+      }
+
+      const translated = translateText(normalizedOriginal);
+      if (translated != null && translated !== original) {
+        const fragment = document.createDocumentFragment();
+        let cursor = 0;
+        let canRebuild = true;
+
+        for (const child of childElements) {
+          const childText = child.textContent;
+          if (!childText) continue;
+
+          const index = translated.indexOf(childText, cursor);
+          if (index === -1) {
+            canRebuild = false;
+            break;
+          }
+
+          if (index > cursor) {
+            fragment.appendChild(document.createTextNode(translated.slice(cursor, index)));
+          }
+
+          fragment.appendChild(child);
+          cursor = index + childText.length;
+        }
+
+        if (canRebuild) {
+          if (cursor < translated.length) {
+            fragment.appendChild(document.createTextNode(translated.slice(cursor)));
+          }
+          el.replaceChildren(fragment);
+          if (el.setAttribute) el.setAttribute(DONE_FLAG, '');
+          return;
+        }
+      }
+
+      return;
+    }
+
     const translated = translateText(original);
     if (translated != null && translated !== original) {
       el.textContent = translated;
+      if (el.setAttribute) el.setAttribute(DONE_FLAG, '');
     }
-    if (el.setAttribute) el.setAttribute(DONE_FLAG, '');
   }
 
   // 对单个节点及其子树做局部 TreeWalker 翻译
@@ -221,7 +293,7 @@ function initializeTranslation(allData) {
           // 接受 Figma <i18n-text> 元素以便翻译其内文
           if (node.tagName === 'I18N-TEXT') return NodeFilter.FILTER_ACCEPT;
 
-          const nodeHasTargetTextAttribute = node.hasAttribute('data-label') || node.hasAttribute('placeholder');
+          const nodeHasTargetTextAttribute = TEXT_ATTRIBUTES.some((attr) => node.hasAttribute(attr));
           return nodeHasTargetTextAttribute
             ? NodeFilter.FILTER_ACCEPT
             : NodeFilter.FILTER_SKIP;
@@ -241,8 +313,7 @@ function initializeTranslation(allData) {
           translateI18nText(currentNode);
         }
         // 同样检查属性节点
-        translateAttribute(currentNode, 'data-label');
-        translateAttribute(currentNode, 'placeholder');
+        TEXT_ATTRIBUTES.forEach((attr) => translateAttribute(currentNode, attr));
       }
       currentNode = treeWalker.nextNode();
     }
@@ -263,9 +334,10 @@ function initializeTranslation(allData) {
       }
 
       if (m.type === 'attributes') {
-        // data-label 属性变化
-        if (m.attributeName === 'data-label' && m.target && m.target.nodeType === 1) {
+        // 翻译属性变化
+        if (TEXT_ATTRIBUTES.includes(m.attributeName) && m.target && m.target.nodeType === 1) {
           translateAttribute(m.target, 'data-label');
+          translateAttribute(m.target, m.attributeName);
         }
         continue;
       }
