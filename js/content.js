@@ -24,7 +24,7 @@ function initializeTranslation(allData) {
   const MutationObserverConfig = {
     childList: true,
     subtree: true,
-    attributeFilter: ['data-label'],
+    attributeFilter: ['data-label', 'aria-label', 'data-tooltip'],
     characterData: true
   };
 
@@ -56,6 +56,7 @@ function initializeTranslation(allData) {
   };
 
   const DONE_FLAG = 'data-figmacn-done';
+  const TEXT_ATTRIBUTES = ['data-label', 'placeholder', 'aria-label', 'data-tooltip'];
 
   // 跳过区域根节点缓存：记录最近一次判定为"跳过区域"的根节点，避免对其子树反复向上遍历
   let skipRootCache = null;
@@ -292,7 +293,7 @@ function initializeTranslation(allData) {
           // 接受 Figma <i18n-text> 元素以便翻译其内文
           if (node.tagName === 'I18N-TEXT') return NodeFilter.FILTER_ACCEPT;
 
-          const nodeHasTargetTextAttribute = node.hasAttribute('data-label') || node.hasAttribute('placeholder');
+          const nodeHasTargetTextAttribute = TEXT_ATTRIBUTES.some((attr) => node.hasAttribute(attr));
           return nodeHasTargetTextAttribute
             ? NodeFilter.FILTER_ACCEPT
             : NodeFilter.FILTER_SKIP;
@@ -312,8 +313,7 @@ function initializeTranslation(allData) {
           translateI18nText(currentNode);
         }
         // 同样检查属性节点
-        translateAttribute(currentNode, 'data-label');
-        translateAttribute(currentNode, 'placeholder');
+        TEXT_ATTRIBUTES.forEach((attr) => translateAttribute(currentNode, attr));
       }
       currentNode = treeWalker.nextNode();
     }
@@ -334,9 +334,10 @@ function initializeTranslation(allData) {
       }
 
       if (m.type === 'attributes') {
-        // data-label 属性变化
-        if (m.attributeName === 'data-label' && m.target && m.target.nodeType === 1) {
+        // 翻译属性变化
+        if (TEXT_ATTRIBUTES.includes(m.attributeName) && m.target && m.target.nodeType === 1) {
           translateAttribute(m.target, 'data-label');
+          translateAttribute(m.target, m.attributeName);
         }
         continue;
       }
