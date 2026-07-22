@@ -4200,5 +4200,16 @@
   ["Email or website where users can contact you", "用户可以联系您的电子邮箱或网站"],
   ["Set a unique handle for your new Community profile", "为新的社区个人资料设置唯一的用户名"],
   ["Use up to 15 characters (letters, numbers, or _)", "最多使用 15 个字符（字母、数字或 _）"],
-  ["Profile handle must not be empty", "个人资料用户名不能为空"]
+  ["Profile handle must not be empty", "个人资料用户名不能为空"],
+  ["{@} people", "{1} 人"],
+  ["This setting applies to anyone in the file with {@} access", "此设置适用于文件中拥有{1}权限的任何人"],
+  ["Viewers can copy, save, and export from this file", "查看者可以复制、保存和导出此文件"],
+  ["The following people have access to this file because they're members of the project where this file lives - {@}.", "以下人员可以访问此文件，因为他们是该文件所在项目 {1} 的成员。"],
+  ["Add comma separated emails to invite", "添加以逗号分隔的邮箱地址以发送邀请"],
+  ["Open prototype settings", "打开原型设置"],
+  ["Will open in new tab", "将在新标签页中打开"],
+  ["Share this prototype", "分享此原型"],
+  ["Editors from the main file can also access.", "主文件中的编辑者也可以访问。"],
+  ["Any changes you make will only update access to the prototype. People in the main file or directly invited to the prototype won't be impacted.", "您所做的任何更改只会更新原型的访问权限。主文件中的人员或直接受邀访问原型的人员不会受到影响。"],
+  ["Only people you've directly invited can access this prototype.", "只有您直接邀请的人才能访问此原型。"]
 ]
