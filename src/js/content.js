@@ -70,8 +70,15 @@ function initializeTranslation(allData) {
       if (typeof currentElement.getAttribute !== 'function') {
         return false;
       }
-      // 检测 translate="no" 属性 - 这是代码编辑器的标记
-      if (currentElement.getAttribute('translate') === 'no') {
+      // 仅将代码编辑器上的 translate="no" 视为跳过标记；Figma 的普通面板也会使用该属性。
+      const tagName = currentElement.tagName;
+      const className = typeof currentElement.className === 'string' ? currentElement.className : '';
+      const looksLikeCodeEditor = currentElement.isContentEditable
+        || currentElement.getAttribute('role') === 'textbox'
+        || tagName === 'PRE'
+        || tagName === 'CODE'
+        || /code|monaco|codemirror/i.test(className);
+      if (currentElement.getAttribute('translate') === 'no' && looksLikeCodeEditor) {
         skipRootCache = currentElement; // 缓存命中，子树直接跳过
         return true;
       }
@@ -97,12 +104,36 @@ function initializeTranslation(allData) {
     return false;
   }
 
+  // 跳过用户正在编辑的富文本内容，避免评论、标注等输入被替换。
+  function isEditableRoot(node) {
+    return node && node.nodeType !== DOM_NODE_TYPE.TEXT_NODE
+      && node.getAttribute && node.getAttribute('contenteditable') === 'true'
+      && node.isContentEditable;
+  }
+
+  function isNodeInEditableArea(node) {
+    let currentElement = node.nodeType === DOM_NODE_TYPE.TEXT_NODE ? node.parentElement : node;
+
+    while (currentElement && currentElement !== document.body) {
+      if (currentElement.isContentEditable) {
+        if (currentElement === node && isEditableRoot(node)) return false;
+        skipRootCache = currentElement;
+        return true;
+      }
+
+      currentElement = currentElement.parentElement;
+    }
+
+    return false;
+  }
+
   function shouldSkipTranslation(node) {
     // 命中缓存：当前节点位于上次标记的跳过根节点之内，直接跳过
     if (skipRootCache && skipRootCache.contains(node)) {
+      if (node === skipRootCache && isEditableRoot(node)) return false;
       return true;
     }
-    return isNodeInCodeEditor(node) || isNodeInVariableNameArea(node);
+    return isNodeInCodeEditor(node) || isNodeInVariableNameArea(node) || isNodeInEditableArea(node);
   }
 
   // 按 key 长度降序排序，确保兜底精确匹配时长词条优先（避免 "Edu" 先于 "Education" 命中）
