@@ -4361,5 +4361,16 @@
   ["Learn more about folder permissions.", "详细了解文件夹权限。"],
   ["People from {@}", "来自{1}的人员"],
   ["What can people find or learn from this file? Get specific, so the community knows what to expect.", "人们可以从此文件中找到或了解到什么？请具体说明，让社区知道他们可以期待什么。"],
-  ["{@} components", "{1} 个组件"]
+  ["{@} components", "{1} 个组件"],
+  ["Delete this category", "删除此分类"],
+  ["Deleting this category will remove it from all annotations in this file. Do you wish to continue?", "删除此分类会将其从此文件中的所有标注中移除。是否要继续？"],
+  ["New available font: {@}", "新字体可用：{1}"],
+  ["Inside stroke", "内描边"],
+  ["Legacy", "旧版"],
+  ["The updated layout is more consistent with CSS. The legacy version is available temporarily while you transition.", "更新后的布局与 CSS 更加一致。在过渡期间，旧版仍会暂时可用。"],
+  ["{@} minute ago", "{1} 分钟前"],
+  ["Mark as resolved", "标记为已解决"],
+  ["Add reaction", "添加表情回应"],
+  ["Thread actions", "主题操作"],
+  ["Ask to spotlight", "请求演示"]
 ]
