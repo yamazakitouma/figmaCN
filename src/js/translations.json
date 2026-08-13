@@ -4375,5 +4375,11 @@
   ["Ask to spotlight", "请求演示"],
   ["{@} reply", "{1} 条回复"],
   ["{@} hr. ago", "{1} 小时前"],
-  ["{@} min. ago", "{1} 分钟前"]
+  ["{@} min. ago", "{1} 分钟前"],
+  ["Comment resolved", "评论已解决"],
+  ["An error occurred while resolving this comment.", "解决此评论时发生错误。"],
+  ["Comment ({@} unread)", "评论（{1} 条未读）"],
+  ["Code options", "代码选项"],
+  ["Set up an MCP client", "设置 MCP 客户端"],
+  ["Save for quicker access to your favorite plugins", "保存以便快速访问您喜爱的插件"]
 ]
